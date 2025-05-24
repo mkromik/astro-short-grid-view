@@ -6,11 +6,14 @@ import { Card } from "@/components/ui/card";
 import { Search, Filter, Play } from 'lucide-react';
 import { shortsData } from '@/data/shorts';
 import { VideoCard } from '@/components/VideoCard';
+import { VideoModal } from '@/components/VideoModal';
 import { TagFilter } from '@/components/TagFilter';
 
 const Index = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
 
   // Get all unique tags
   const allTags = useMemo(() => {
@@ -46,6 +49,15 @@ const Index = () => {
   const clearAllFilters = () => {
     setSelectedTags([]);
     setSearchTerm('');
+  };
+
+  const handleVideoPlay = (index: number) => {
+    setCurrentVideoIndex(index);
+    setIsModalOpen(true);
+  };
+
+  const handleModalNavigate = (index: number) => {
+    setCurrentVideoIndex(index);
   };
 
   return (
@@ -110,7 +122,11 @@ const Index = () => {
         {filteredShorts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredShorts.map((short, index) => (
-              <VideoCard key={index} short={short} />
+              <VideoCard 
+                key={index} 
+                short={short} 
+                onPlay={() => handleVideoPlay(index)}
+              />
             ))}
           </div>
         ) : (
@@ -123,6 +139,18 @@ const Index = () => {
           </div>
         )}
       </div>
+
+      {/* Video Modal */}
+      {isModalOpen && filteredShorts[currentVideoIndex] && (
+        <VideoModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          currentShort={filteredShorts[currentVideoIndex]}
+          allShorts={filteredShorts}
+          currentIndex={currentVideoIndex}
+          onNavigate={handleModalNavigate}
+        />
+      )}
     </div>
   );
 };
